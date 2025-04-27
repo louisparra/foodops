@@ -1,0 +1,40 @@
+name: Build Design Tokens
+
+on:
+  push:
+    paths:
+      - 'design-tokens/src/tokens.json'
+  pull_request:
+    paths:
+      - 'design-tokens/src/tokens.json'
+
+jobs:
+  build-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install & Build Tokens
+        working-directory: design-tokens
+        run: |
+          npm ci
+          npm run build
+
+      - name: Commit & push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(tokens): rebuild generated design tokens"
+          file_pattern: |
+            app/assets/stylesheets/_design-tokens.scss
+            app/assets/stylesheets/design-tokens.css
+            app/javascript/styles/design-tokens.js
+            config/design-tokens.yml
